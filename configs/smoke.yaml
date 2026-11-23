@@ -1,0 +1,13 @@
+# Tiny end-to-end run to check the pipeline on real data before spending GPU hours.
+output_dir: runs_smoke
+data:
+  max_train_examples: 2000
+  val_limit: 200
+model:
+  max_len: 512
+train:
+  max_steps: 200
+  warmup_steps: 20
+  log_every: 10
+  eval_every: 100
+  ckpt_every: 100

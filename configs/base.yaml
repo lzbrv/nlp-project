@@ -1,0 +1,38 @@
+# Defaults follow ReProver's retriever where known; the rest are our choices.
+# Double-check lr / warmup / max_len against the ReProver repo's retrieval
+# config before the real runs, and calibrate max_steps from sec_per_step in
+# log.jsonl so each run fits the ~5-7 GPU-hour budget per run.
+seed: 0
+output_dir: runs
+data:
+  root: processed          # output of build_data.py (see DATA.md)
+  split: random            # random | novel_premises
+  max_train_examples: null
+  val_limit: 2000          # val steps used for checkpoint selection
+model:
+  name: google/byt5-small
+  max_len: 1024            # bytes; lower (e.g. 512) if you hit OOM
+negatives:
+  strategy: in_file        # in_file | random  <- the ablation variable
+  num_negatives: 3
+  num_in_file: 1           # ignored when strategy=random
+train:
+  batch_size: 8
+  grad_accum: 1
+  lr: 1.0e-4
+  weight_decay: 0.0
+  warmup_steps: 2000
+  max_steps: 40000
+  loss: mse                # mse = ReProver's objective; infonce also available
+  temperature: 0.05        # only used by infonce
+  grad_clip: 1.0
+  bf16: true
+  num_workers: 4
+  log_every: 50
+  eval_every: 5000
+  ckpt_every: 5000
+eval:
+  batch_size: 64
+  premise_batch_size: 128
+  k_save: 100
+  n_boot: 1000

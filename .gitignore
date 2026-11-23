@@ -13,3 +13,12 @@ __pycache__/
 checkpoints/
 *.pt
 *.ckpt
+
+# Retriever experiment outputs (see retrieval/, configs/)
+runs/
+runs_smoke/
+*.safetensors
+.venv/
+venv/
+.pytest_cache/
+.DS_Store
