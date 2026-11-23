@@ -1,0 +1,15 @@
+# Raw LeanDojo data and generated files (too large for git; regenerate with build_data.py)
+leandojo_benchmark_4/
+._leandojo_benchmark_4
+*.tar.gz
+processed/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Model checkpoints and outputs
+checkpoints/
+*.pt
+*.ckpt
