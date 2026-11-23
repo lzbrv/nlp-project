@@ -145,12 +145,12 @@ def train(cfg: Config, resume: bool = False, max_steps_override: Optional[int] =
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     from .model import DualEncoder
-    corpus = Corpus.load(Path(cfg.data.root) / "corpus.jsonl")
-    accessible = AccessibleIndex.load(cfg.data.root)
+    corpus = Corpus.load(cfg.data.root)
+    accessible = AccessibleIndex.load(cfg.data.root, corpus)
     train_ex, train_stats = load_examples(split_path(cfg.data.root, cfg.data.split, "train"),
-                                          len(corpus), cfg.data.max_train_examples)
+                                          corpus, cfg.data.max_train_examples)
     val_ex, val_stats = load_examples(split_path(cfg.data.root, cfg.data.split, "val"),
-                                      len(corpus), cfg.data.val_limit)
+                                      corpus, cfg.data.val_limit)
     logger.log({"event": "data", "corpus": len(corpus), "train": train_stats, "val": val_stats})
 
     start_from = run_dir / "last" if resume and (run_dir / "last").exists() else cfg.model.name

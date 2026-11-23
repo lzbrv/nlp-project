@@ -14,9 +14,9 @@ from retrieval.negatives import NegativeSampler, sample_excluding
 
 
 def load(data_root, part="train"):
-    corpus = Corpus.load(data_root / "corpus.jsonl")
-    exs, stats = load_examples(split_path(data_root, "random", part), len(corpus))
-    return corpus, exs, stats, AccessibleIndex.load(data_root)
+    corpus = Corpus.load(data_root)
+    exs, stats = load_examples(split_path(data_root, "random", part), corpus)
+    return corpus, exs, stats, AccessibleIndex.load(data_root, corpus)
 
 
 def test_loading_drops_empty_and_resolves_accessible(data_root):
@@ -24,12 +24,20 @@ def test_loading_drops_empty_and_resolves_accessible(data_root):
     assert stats["dropped_no_positive"] == 1 and stats["examples"] == 40
     assert len(acc.get(exs[0])) == 30          # keyed pool
     assert acc.get(exs[1]) is None             # falls back to all premises
+    assert exs[0].id == "train:0" and exs[0].file == "Mathlib/F0.lean"
+    assert [corpus.name(i) for i in exs[0].positive_ids] == sorted(
+        corpus.name(i) for i in exs[0].positive_ids)
 
 
-def test_corpus_requires_contiguous_ids(tmp_path):
-    (tmp_path / "c.jsonl").write_text('{"id": 1, "path": "a", "code": "x"}\n')
+def test_corpus_rejects_duplicate_and_unknown_ids(tmp_path):
+    line = '{"id": "a", "full_name": "a", "statement": "x", "file_path": "f"}\n'
+    (tmp_path / "premises.jsonl").write_text(line * 2)
     with pytest.raises(ValueError):
-        Corpus.load(tmp_path / "c.jsonl")
+        Corpus.load(tmp_path)
+    (tmp_path / "premises.jsonl").write_text(line)
+    (tmp_path / "t.jsonl").write_text('{"state": "s", "positive_premise_ids": ["zzz"]}\n')
+    with pytest.raises(KeyError):
+        load_examples(tmp_path / "t.jsonl", Corpus.load(tmp_path))
 
 
 @pytest.mark.parametrize("pool", [None, np.arange(30)])

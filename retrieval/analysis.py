@@ -2,7 +2,7 @@
 
     # in-file (A) vs random (B) on one split, paired over test steps
     python -m retrieval.analysis compare runs/random__in_file__seed0/eval_random_test \
-        runs/random__random__seed0/eval_random_test --data-root data/... --split random
+        runs/random__random__seed0/eval_random_test --data-root processed --split random
 
     # is the in-file advantage larger on novel_premises than on random?
     python -m retrieval.analysis did \
@@ -58,8 +58,8 @@ def disagreements(a_dir, b_dir, data_root, split, part="test", k=10) -> List[dic
     """Steps where exactly one model gets any positive into its top k."""
     a, b = load_per_example(a_dir), load_per_example(b_dir)
     ids = align(a, b)
-    corpus = Corpus.load(Path(data_root) / "corpus.jsonl")
-    exs = {e.id: e for e in load_examples(split_path(data_root, split, part), len(corpus))[0]}
+    corpus = Corpus.load(data_root)
+    exs = {e.id: e for e in load_examples(split_path(data_root, split, part), corpus)[0]}
 
     def hit(r):
         return any(x is not None and x <= k for x in r["pos_ranks"])

@@ -11,14 +11,13 @@ negatives vs. **uniformly random** accessible negatives — on LeanDojo Benchmar
 
 | Area | Lead | Where |
 |---|---|---|
-| LeanDojo preprocessing, accessible-premise sets, BM25 | Leo | `data/` output per [`docs/data_contract.md`](docs/data_contract.md) |
+| LeanDojo preprocessing, accessible-premise sets, BM25 | Leo | `build_data.py` → `processed/`, see [`DATA.md`](DATA.md) |
 | DPR training loop, experiment management, error analysis | Joel | `retrieval/`, `configs/`, `scripts/` |
 
-The two halves meet at **[`docs/data_contract.md`](docs/data_contract.md)**: the
-preprocessing writes `corpus.jsonl` + per-split `{train,val,test}.jsonl`, and
-everything in `retrieval/` reads only that. BM25 can be scored through the same
-evaluator (`retrieval.evaluate.evaluate_with_scorer`) so all systems share
-candidate pools, metrics, and analysis tooling.
+`retrieval/` reads `build_data.py`'s `processed/` files directly. What it relies
+on, the proposed format for accessible-premise pools, and how to run BM25
+through the shared evaluator are in
+**[`docs/data_contract.md`](docs/data_contract.md)**.
 
 ## Layout
 
@@ -46,6 +45,9 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pytest -q          # ~5 s on CPU, no downloads
 ```
+
+Then build the data as described in [`DATA.md`](DATA.md) (download the
+LeanDojo tarball, `python build_data.py` → `processed/`).
 
 ## Running
 
@@ -75,7 +77,7 @@ GPU), `log.jsonl` (loss, lr, in-file fill rate, sec/step, validation metrics),
 python -m retrieval.analysis compare \
   runs/novel_premises__in_file__seed0/eval_novel_premises_test \
   runs/novel_premises__random__seed0/eval_novel_premises_test \
-  --data-root data/leandojo_benchmark_4_v7 --split novel_premises
+  --data-root processed --split novel_premises
 
 # main hypothesis: is the in-file gap larger on novel_premises than on random?
 python -m retrieval.analysis did \

@@ -132,8 +132,8 @@ def write_results(out_dir, per_example: List[dict], metrics: Dict) -> None:
     (out / "metrics.json").write_text(json.dumps(metrics, indent=2))
 
 
-def train_positive_set(data_root, split: str, corpus_size: int) -> Set[int]:
-    exs, _ = load_examples(split_path(data_root, split, "train"), corpus_size)
+def train_positive_set(data_root, split: str, corpus: Corpus) -> Set[int]:
+    exs, _ = load_examples(split_path(data_root, split, "train"), corpus)
     return {p for ex in exs for p in ex.positive_ids}
 
 
@@ -181,11 +181,11 @@ def main(argv=None):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = DualEncoder.from_pretrained(str(ckpt), cfg.model.max_len).to(device)
-    corpus = Corpus.load(Path(data_root) / "corpus.jsonl")
-    accessible = AccessibleIndex.load(data_root)
-    examples, stats = load_examples(split_path(data_root, split, args.part), len(corpus), args.limit)
+    corpus = Corpus.load(data_root)
+    accessible = AccessibleIndex.load(data_root, corpus)
+    examples, stats = load_examples(split_path(data_root, split, args.part), corpus, args.limit)
     print(f"{split}/{args.part}: {stats}", flush=True)
-    train_pos = None if args.no_seen_unseen else train_positive_set(data_root, split, len(corpus))
+    train_pos = None if args.no_seen_unseen else train_positive_set(data_root, split, corpus)
 
     per_ex, _ = evaluate_dense(model, corpus, examples, accessible, cfg.eval.batch_size,
                                cfg.eval.premise_batch_size, cfg.eval.k_save, train_pos, progress=True)

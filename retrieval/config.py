@@ -12,7 +12,7 @@ import yaml
 
 @dataclass
 class DataConfig:
-    root: str = "data/leandojo_benchmark_4_v7"
+    root: str = "processed"           # output dir of build_data.py
     split: str = "random"                 # random | novel_premises
     max_train_examples: Optional[int] = None
     val_limit: Optional[int] = 2000       # val steps used for checkpoint selection

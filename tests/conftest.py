@@ -13,26 +13,29 @@ FILES = [f"Mathlib/F{i}.lean" for i in range(5)]
 def make_dataset(root, n_premises=60, n_steps=40, seed=0, with_accessible=True):
     rng = random.Random(seed)
     root.mkdir(parents=True, exist_ok=True)
-    corpus = [{"id": i, "full_name": f"lemma_{i}", "path": FILES[i % len(FILES)],
-               "code": f"theorem lemma_{i} : x{i} + 0 = x{i}"} for i in range(n_premises)]
-    write_jsonl(root / "corpus.jsonl", corpus)
+    # Same schema as build_data.py's processed/premises.jsonl
+    premises = [{"id": f"lemma_{i}", "full_name": f"lemma_{i}", "file_path": FILES[i % len(FILES)],
+                 "statement": f"theorem lemma_{i} : x{i} + 0 = x{i}",
+                 "start": [i, 1], "end": [i, 30]} for i in range(n_premises)]
+    write_jsonl(root / "premises.jsonl", premises)
     if with_accessible:
         write_jsonl(root / "accessible.jsonl",
-                    [{"key": "first_half", "ids": list(range(n_premises // 2))}])
+                    [{"key": "first_half", "ids": [f"lemma_{i}" for i in range(n_premises // 2)]}])
     for split in ("random", "novel_premises"):
         (root / split).mkdir(parents=True, exist_ok=True)
         for part in ("train", "val", "test"):
             rows = []
             for j in range(n_steps):
                 pos = rng.sample(range(n_premises // 2), rng.randint(1, 2))
-                row = {"id": f"{split}-{part}-{j}", "theorem": f"thm_{j}", "file": FILES[0],
+                # Same schema as build_data.py's processed/{split}/{part}.jsonl
+                row = {"theorem": f"thm_{j}", "file_path": FILES[0], "theorem_start": [100 + j, 1],
                        "state": "⊢ " + " ∧ ".join(f"x{p} + 0 = x{p}" for p in pos),
-                       "positive_ids": pos}
+                       "positive_premise_ids": [f"lemma_{p}" for p in pos]}
                 if with_accessible and j % 2 == 0:
                     row["accessible_key"] = "first_half"
                 rows.append(row)
-            rows.append({"id": f"{split}-{part}-empty", "theorem": "t", "file": FILES[0],
-                         "state": "⊢ True", "positive_ids": []})
+            rows.append({"theorem": "t", "file_path": FILES[0], "theorem_start": [1, 1],
+                         "state": "⊢ True", "positive_premise_ids": []})
             write_jsonl(root / split / f"{part}.jsonl", rows)
     return root
 

@@ -5,7 +5,7 @@
 seed: 0
 output_dir: runs
 data:
-  root: data/leandojo_benchmark_4_v7
+  root: processed          # output of build_data.py (see DATA.md)
   split: random            # random | novel_premises
   max_train_examples: null
   val_limit: 2000          # val steps used for checkpoint selection
