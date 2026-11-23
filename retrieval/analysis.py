@@ -73,10 +73,10 @@ def disagreements(a_dir, b_dir, data_root, split, part="test", k=10) -> List[dic
         rows.append({
             "id": i, "winner": "a" if ha else "b",
             "state": ex.state if ex else None,
-            "positives": [corpus.name(p) for p in a[i]["positive_ids"]],
+            "positives": a[i]["positive_ids"],
             "pos_ranks_a": a[i]["pos_ranks"], "pos_ranks_b": b[i]["pos_ranks"],
-            "top5_a": [corpus.name(p) for p in a[i]["top_ids"][:5]],
-            "top5_b": [corpus.name(p) for p in b[i]["top_ids"][:5]],
+            "top5_a": a[i]["top_ids"][:5],
+            "top5_b": b[i]["top_ids"][:5],
             "top_wrong_same_file_a": a[i]["top_wrong_same_file"],
             "top_wrong_same_file_b": b[i]["top_wrong_same_file"],
         })

@@ -12,8 +12,11 @@ the format for the one piece that is not built yet: accessible-premise pools.
 | `processed/premises.jsonl` | `id` (must be unique), `full_name`, `statement` (encoder input; prefixed with `full_name :` if the name is not in it), `file_path` (in-file negatives) |
 | `processed/{random,novel_premises}/{train,val,test}.jsonl` | `state`, `positive_premise_ids`, `file_path`, `theorem` |
 
-- Each premise is addressed internally by its **line number** in
-  `premises.jsonl`; embeddings and candidate pools are integer arrays.
+- **Premise ids are the Lean full names** (`id` from `premises.jsonl`;
+  for the 46 duplicated names that is `name@file:line:col`). All outputs
+  (`per_example.jsonl`: `positive_ids`, `top_ids`, `top_wrong_id`; disagreement
+  dumps) use these ids. Only inside the code is a premise also addressed by its
+  line number, so embeddings and candidate pools can be integer arrays.
 - Each example gets the id `"<part>:<line number>"` (e.g. `test:17`), which
   `per_example.jsonl` and the paired analyses use to align models. This relies
   on `build_data.py` writing lines in a deterministic order (it does). If an

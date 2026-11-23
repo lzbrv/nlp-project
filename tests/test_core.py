@@ -110,7 +110,8 @@ def test_evaluator_with_oracle_and_masking(data_root):
     keyed = [r for r, ex in zip(per_ex, exs) if ex.accessible_key]
     full = [r for r, ex in zip(per_ex, exs) if not ex.accessible_key]
     assert all(r["recall@10"] == 1.0 and r["mrr"] == 1.0 for r in keyed)
-    assert all(r["mrr"] == 0.5 and r["top_ids"][0] == 59 for r in full)
+    assert all(r["mrr"] == 0.5 and r["top_ids"][0] == "lemma_59" for r in full)
+    assert all(r["positive_ids"][0].startswith("lemma_") for r in per_ex)
     m = summarize(per_ex, n_boot=50)
     assert m["n_examples"] == 40 and m["recall@10"]["mean"] == 1.0
 
